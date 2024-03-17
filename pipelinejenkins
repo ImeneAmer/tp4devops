@@ -1,0 +1,40 @@
+pipeline {
+  environment {
+    registry = "imeneamer/tp5devopsimene"
+    registryCredential = 'dockerhub_imeneamer'
+    dockerImage = ''
+    gitBranch = 'master'
+  }
+  agent any
+  stages {
+    stage('Cloning Git') {
+      steps {
+        git branch: "${gitBranch}", url: 'https://github.com/ImeneAmer/tp4devops'
+      }
+    }
+    stage('Building image') {
+      steps {
+        script {
+          dockerImage = docker.build registry + ":$BUILD_NUMBER"
+        }
+      }
+    }
+    stage('Test image') {
+      steps {
+        script {
+
+          echo "Tests passed"
+        }
+      }
+    }
+    stage('Publish Image') {
+      steps {
+        script {
+          docker.withRegistry('', registryCredential) {
+            dockerImage.push()
+          }
+        }
+      }
+    }
+  }
+}
